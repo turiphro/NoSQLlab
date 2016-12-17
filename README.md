@@ -5,9 +5,11 @@ This is a collection of ready-to-go experiments with databases.
 
 Every database has a Hello World setup with
 [Docker compose](https://docs.docker.com/compose/) to run on any OS.
-All databases have these example scripts:
-    - `./propagate.sh`: (big) data generation, to have some data
-    - `./aggregate.sh`: perform some exemplar aggregation on the data
+All databases have some example scripts that try to highlight some of the
+strengths and peculiarities:
+
+- `./propagate.sh`: (big) data generation, to have some data
+- `./aggregate.sh`: perform some exemplar aggregation on the data
 
 Read the corresponding README for the database for specific instructions.
 
