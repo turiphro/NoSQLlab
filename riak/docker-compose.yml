@@ -18,7 +18,7 @@ services:
     volumes:
       - schemas:/etc/riak/schemas
       - data:/var/lib/riak  # persistent; remove for ephemeral tasks
-  member: # additional nodes (docker-compose scale member=N)
+  node: # additional nodes (docker-compose scale node=N)
     image: basho/riak-kv:ubuntu-2.1.4
     ports:
       - "8087"

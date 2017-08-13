@@ -1,10 +1,10 @@
 Start with:
 
-	docker-compose up -d --scale member=5
+	docker-compose up -d --scale node=5
 
 See status with:
 
-    docker-compose exec member riak-admin cluster status
+    docker-compose exec node riak-admin cluster status
 
 Run scripts with:
 
