@@ -1,0 +1,23 @@
+# Version from: August 2017
+
+version: "2"
+services:
+  db:
+    image: postgres:9.6
+    volumes:
+        - data:/var/lib/postgresql/data
+    restart: always
+  scripts:
+    image: postgres:9.6
+    volumes:
+        - ./scripts:/scripts
+    working_dir: /scripts
+    links:
+      - db
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+
+volumes:
+  data: {}
