@@ -1,0 +1,16 @@
+{
+    "inputs": "rooms",
+    "query": [
+        {"map": {
+            "language": "javascript",
+            "bucket": "functions",
+            "key": "map_capacity"
+        }},
+        {"reduce": {
+            "language": "javascript",
+            "bucket": "functions",
+            "key": "reduce_capacity"
+        }}
+    ]
+}
+

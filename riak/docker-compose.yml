@@ -1,0 +1,48 @@
+# Based on: http://basho.com/posts/technical/running-riak-in-docker/
+# Note: 'coordinator' isn't a central coordinator; we just need to
+# pass all new containers some hostname to join the masterless cluster
+#
+# Version from: October 2016
+
+version: "2"
+services:
+  coordinator: # first node (but not really a coordinator)
+    image: basho/riak-kv:ubuntu-2.1.4
+    ports:
+      - "8087"
+      - "8098"
+    environment:
+      - CLUSTER_NAME=riakkv
+    labels:
+      - "com.basho.riak.cluster.name=riak-kv"
+    volumes:
+      - schemas:/etc/riak/schemas
+      - data:/var/lib/riak  # persistent; remove for ephemeral tasks
+  member: # additional nodes (docker-compose scale member=N)
+    image: basho/riak-kv:ubuntu-2.1.4
+    ports:
+      - "8087"
+      - "8098"
+    labels:
+      - "com.basho.riak.cluster.name=riak-kv"
+    links:
+      - coordinator
+    depends_on:
+      - coordinator
+    environment:
+      - CLUSTER_NAME=riakkv
+      - COORDINATOR_NODE=coordinator
+  scripts:
+    build: scripts
+    labels:
+      - "com.basho.riak.cluster.name=riak-kv"
+    links:
+      - coordinator
+    depends_on:
+      - coordinator
+    environment:
+      - COORDINATOR_NODE=coordinator
+
+volumes:
+  schemas: {}
+  data: {}
