@@ -14,7 +14,7 @@ Some databases might need to scale to multiple nodes (`--scale node=N`).
 All databases have some example scripts that try to highlight some of the
 strengths and peculiarities:
 
-- `docker-compose run scripts ./propagate.sh`: (big) data generation, to have some data
+- `docker-compose run scripts ./populate.sh`: (big) data generation, to have some data
 - `docker-compose run scripts ./aggregate.sh`: perform some exemplar aggregation on the data
 
 Read the corresponding README for the database for specific instructions.

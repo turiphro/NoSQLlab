@@ -8,5 +8,5 @@ See status with:
 
 Run scripts with:
 
-	docker-compose run scripts ./propagate.sh
+	docker-compose run scripts ./populate.sh
 	docker-compose run scripts ./aggregate.sh
