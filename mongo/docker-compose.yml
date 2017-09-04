@@ -1,0 +1,168 @@
+# Based on:
+# https://github.com/Ameausoone/mongo-docker-compose/blob/fddaeac58b7df373b8f939d805ee7d270065fd6e/docker-compose.yml
+#
+# This is a pretty distributed setup:
+#                                          /--- mongors1n1
+# clients    --> mongos1 --x-> mongocfg1 -x---- mongors1n2
+#                        \ |              |\--- mongors1n3
+#                         -x-> mongocfg2 -x
+#                        / |              |/--- mongors2n1 
+# other clts --> mongos2 --x-> mongocfg3 -x---- mongors2n2 
+#                                          \--- mongors2n3 
+# In other words:
+# Clients connect to one of both mongos endpoints,
+# who simply forward requests to the current config master,
+# who forward requests to the current master in the right
+# shard (according to the config's partitioning metadata).
+# In each group, one server can go down without problems.
+
+version: "2"
+services:
+
+  scripts:
+    build: scripts
+    depends_on:
+      - mongos1 # could also connect to mongos2
+      - mongos2
+    environment:
+      - COORDINATOR_NODE=mongos1
+      - COORDINATOR_PORT=27017
+    command: mongo --host mongos1
+
+  mongors1n1:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors1 --shardsvr --nojournal --oplogSize 16 --noauth --rest
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+      - 28018 # REST
+    ports:
+      - 29000:28018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors1n1vol:/data/db
+
+  mongors1n2:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors1 --shardsvr --nojournal --oplogSize 16 --noauth --rest
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors1n2vol:/data/db
+
+  mongors1n3:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors1 --shardsvr --nojournal --oplogSize 16 --noauth --rest
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors1n3vol:/data/db
+
+  mongors2n1:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors2 --shardsvr --nojournal --oplogSize 16 --noauth --rest
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors2n1vol:/data/db
+
+  mongors2n2:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors2 --shardsvr --nojournal --oplogSize 16 --noauth
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors2n2vol:/data/db
+
+  mongors2n3:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --replSet mongors2 --shardsvr --nojournal --oplogSize 16 --noauth
+    environment:
+      TERM: xterm
+    expose:
+      - 27018
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongors2n3vol:/data/db
+
+  mongocfg1:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --configsvr --replSet mongocfg1 --noauth
+    environment:
+      TERM: xterm
+    expose:
+      - 27019
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongocfg1vol:/data/configdb
+
+  mongocfg2:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --configsvr --replSet mongocfg1 --noauth
+    environment:
+      TERM: xterm
+    expose:
+      - 27019
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongocfg2vol:/data/configdb
+
+  mongocfg3:
+    image: mongo:3.4
+    command: mongod --noprealloc --smallfiles --configsvr --replSet mongocfg1 --noauth
+    environment:
+      TERM: xterm
+    expose:
+      - 27019
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongocfg3vol:/data/configdb
+
+  mongos1:
+    image: mongo:3.4
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+      - mongocfg3
+    command: mongos --configdb mongocfg1/mongocfg1:27019,mongocfg2:27019,mongocfg3:27019 --port 27017 --noauth
+    ports:
+      - 27017:27017
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  mongos2:
+    image: mongo:3.4
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+      - mongocfg3
+    command: mongos --configdb mongocfg1/mongocfg1:27019,mongocfg2:27019,mongocfg3:27019 --port 27017 --noauth
+    ports:
+      - 27018:27017
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+
+volumes:
+  mongors1n1vol:
+  mongors1n2vol:
+  mongors1n3vol:
+  mongors2n1vol:
+  mongors2n2vol:
+  mongors2n3vol:
+  mongocfg1vol:
+  mongocfg2vol:
+  mongocfg3vol:
