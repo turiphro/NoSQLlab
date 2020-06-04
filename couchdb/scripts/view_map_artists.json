@@ -1,0 +1,7 @@
+{
+    "views": {
+        "by-name": {
+            "map": "function (doc) { if ('name' in doc && 'albums' in doc) { doc.albums.forEach(function(album) { let key = album.title || album.name; let value = {by: doc.name, album_name: album.name}; emit(key, value); /* can be multiple per doc */ }) } }"
+        }
+    }
+}

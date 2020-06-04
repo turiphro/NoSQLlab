@@ -1,0 +1,47 @@
+# Version from: May 2020
+
+version: "3.5"
+services:
+  scripts:
+    build: scripts
+    depends_on:
+      - node0
+    environment:
+      - COORDINATOR_NODE=node0
+    networks:
+      - cluster
+
+  node0: # first node
+    image: couchdb:3
+    ports:
+      - 5984:5984
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=secret
+        #- NODENAME=node0.cluster
+      - ERL_FLAGS=-setcookie "relax"
+    networks:
+      - cluster
+    volumes:
+      - data:/opt/couchdb/data  # persistent; remove for ephemeral tasks
+
+  node: # additional nodes (hard-coded because of the node name)
+    image: couchdb:3
+    ports:
+      - 59841:5984
+    depends_on:
+      - node0
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=secret
+        #- NODENAME=node1.cluster
+      - ERL_FLAGS=-setcookie "relax"
+    networks:
+      - cluster
+
+networks:
+  cluster:
+    name: cluster
+
+volumes:
+  data: {}
