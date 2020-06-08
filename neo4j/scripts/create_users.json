@@ -1,0 +1,14 @@
+{
+    "statements": [
+        {
+            "statement": "CREATE (mr:Person {name: 'Martijn', from: 'Netherlands', occupation: 'software developer'})"
+        },
+        {
+            "statement": "MATCH (mr:Person) WHERE mr.name = 'Martijn' CREATE (on:Person {name: 'Onno', from: 'Netherlands'}), (mr)-[:KNOWS {since: 2018}]->(on), (on)-[:KNOWS]->(mr)"
+        },
+        {
+            "statement": "MATCH (mr:Person {name: 'Martijn'}), (fe:Cat {name: 'Felix'}) CREATE (mr)-[:living_together]->(fe)"
+        }
+    ]
+}
+
