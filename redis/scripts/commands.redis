@@ -1,0 +1,4 @@
+MULTI
+    INCR databases:done
+    INCR databases:todo
+EXEC

@@ -1,0 +1,46 @@
+# Version from: June 2020
+
+version: "3.5"
+services:
+  scripts:
+    build: scripts
+    depends_on:
+      - coordinator
+    environment:
+      - COORDINATOR_NODE=coordinator
+      - NODE_BASENAME=$COMPOSE_PROJECT_NAME  # in .env
+    networks:
+      - cluster
+
+  coordinator: # first node
+    image: redis:6.0
+    ports:
+      - 6379:6379  # TCP
+    networks:
+      - cluster
+    volumes:
+      - data:/data  # persistent; remove for ephemeral tasks
+
+  replica: # full replicas (read-only)
+    image: redis:6.0
+    ports:
+      - 6379  # TCP
+    command: redis-server --replicaof coordinator 6379
+    networks:
+      - cluster
+
+  shard: # full independent master (sharding happens in the client);
+         # not a Redis Cluster though (still seems experimental)
+    image: redis:6.0
+    ports:
+      - 6379  # TCP
+    networks:
+      - cluster
+
+
+networks:
+  cluster:
+    name: cluster
+
+volumes:
+  data: {}
